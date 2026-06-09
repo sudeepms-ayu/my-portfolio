@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>sᴜᴅᴇᴇᴘ | Creative Portfolio</title>
+    
+    <!-- Google Fonts for Aesthetic Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    
+    <!-- Three.js Library for 3D Graphics -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <style>
+        :root {
+            --bg-color: #0a0a0c;
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --accent: #6366f1; /* Cyber Indigo */
+            --accent-glow: rgba(99, 102, 241, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            overflow-x: hidden;
+            overflow-y: auto;
+            scroll-behavior: smooth;
+        }
+
+        /* 3D Canvas Background */
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* UI Overlay Layer */
+        .content-layer {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        /* Navigation */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 0;
+            margin-bottom: 6rem;
+        }
+
+        .logo {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            background: linear-gradient(to right, #fff, var(--text-muted));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-left: 2rem;
+            transition: color 0.3s ease;
+        }
+
+        .nav-links a:hover {
+            color: var(--accent);
+        }
+
+        /* Hero Section */
+        header {
+            min-height: 70vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            max-width: 700px;
+        }
+
+        .tagline {
+            color: var(--accent);
+            text-transform: uppercase;
+            font-weight: 800;
+            font-size: 0.85rem;
+            letter-spacing: 4px;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(4rem, 8vw, 6.5rem);
+            line-height: 1.1;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            letter-spacing: -2px;
+            background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .description {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 2.5rem;
+            font-weight: 300;
+        }
+
+        .cta-btn {
+            display: inline-block;
+            align-self: flex-start;
+            padding: 1rem 2.5rem;
+            background-color: var(--text-main);
+            color: var(--bg-color);
+            text-decoration: none;
+            font-weight: 600;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px var(--accent-glow);
+        }
+
+        .cta-btn:hover {
+            background-color: var(--accent);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        /* Sections */
+        main {
+            margin-bottom: 8rem;
+        }
+
+        .section-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 2.5rem;
+            margin: 0 0 3rem 0;
+            letter-spacing: -1px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 2.5rem;
+            backdrop-filter: blur(10px);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(99, 102, 241, 0.3);
+            background: rgba(99, 102, 241, 0.02);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        .card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.5;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Contact Details & Icons */
+        .contact-box {
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .contact-box h3 {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+            font-family: 'Syne', sans-serif;
+        }
+
+        .contact-box p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .social-icons a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .social-icons a:hover {
+            transform: translateY(-5px);
+            background: rgba(99, 102, 241, 0.2);
+            border-color: var(--accent);
+            box-shadow: 0 10px 20px var(--accent-glow);
+        }
+
+        .social-icons img {
+            width: 24px;
+            height: 24px;
+            object-fit: contain;
+        }
+
+        .notice-text {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 1rem;
+            line-height: 1.6;
+            margin: 3rem auto 0;
+            max-width: 600px;
+            padding: 1.5rem;
+            background: rgba(99, 102, 241, 0.05);
+            border-radius: 12px;
+            border: 1px solid rgba(99, 102, 241, 0.1);
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 3rem 0;
+            display: flex;
+            justify-content: space-between;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 768px) {
+            nav { margin-bottom: 3rem; }
+            .nav-links { display: none; }
+            footer { flex-direction: column; gap: 1rem; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 3D Viewport container -->
+    <div id="canvas-container"></div>
+
+    <!-- Interface Structure -->
+    <div class="content-layer">
+        <nav>
+            <div class="logo">VIDEO EDITOR</div>
+            <div class="nav-links">
+                <a href="#work">Work</a>
+                <a href="#education">Education</a>
+                <a href="#contact">Contact</a>
+            </div>
+        </nav>
+
+        <header>
+            <p class="tagline">Creative Professional</p>
+            <h1>sᴜᴅᴇᴇᴘ</h1>
+            <p class="description">
+                I am a Video Editor, Graphic Designer, Animator, and AI Video Maker. I specialize in crafting cinematic visuals and engaging digital content that stands out.
+            </p>
+            <a href="https://drive.google.com/drive/folders/1hEbC-66bHYYcvdo62rg1BviROqrPs7OI" target="_blank" class="cta-btn">View My Portfolio</a>
+        </header>
+
+        <main id="work">
+            <h2 class="section-title">My Expertise</h2>
+            <div class="grid">
+                <div class="card">
+                    <h3>Video Editing</h3>
+                    <p>High-end cinematic post-production, dynamic color grading, surgical audio layout, and high-retention cuts to elevate any visual project.</p>
+                </div>
+                <div class="card">
+                    <h3>Graphic Design</h3>
+                    <p>Modern visual identities, engaging YouTube thumbnails, aesthetic posters, and cohesive digital branding assets.</p>
+                </div>
+                <div class="card">
+                    <h3>Animation & AI Videos</h3>
+                    <p>Bringing imaginative concepts to life through creative animation workflows and leveraging cutting-edge AI tools for fast, innovative video generation.</p>
+                </div>
+            </div>
+            
+            <div class="notice-text">
+                There are many more edits and creativity to show them you can contact me directly.
+            </div>
+        </main>
+
+        <main id="education">
+            <h2 class="section-title">Education</h2>
+            <div class="card" style="max-width: 600px;">
+                <h3>11th Class Student</h3>
+                <p style="color: var(--accent); font-weight: 600; font-size: 1.1rem; margin-bottom: 0.5rem;">Basic Science Humanities School</p>
+                <p style="margin-bottom: 0;">Currently pursuing my higher secondary education while simultaneously expanding my professional skills in creative digital media.</p>
+            </div>
+        </main>
+
+        <main id="contact">
+            <h2 class="section-title" style="text-align: center;">Get In Touch</h2>
+            <div class="contact-box">
+                <h3>Sudeep Sankar Sahoo</h3>
+                <p>Contact Number: +91 8338961962</p>
+                <p>Email: sudeepsahoo9078@gmail.com</p>
+                
+                <div class="social-icons">
+                    <!-- WhatsApp Icon via SVG -->
+                    <a href="https://wa.me/918338961962" target="_blank" title="Contact on WhatsApp">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#25D366" viewBox="0 0 16 16">
+                            <path d="M13.601 2.326A7.854 7.854 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c-.003 1.396.366 2.76 1.057 3.965L0 16l4.204-1.102a7.933 7.933 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.898 7.898 0 0 0 13.6 2.326zM7.994 14.521a6.573 6.573 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.557 6.557 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592zm3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.004-.247-.007-.38-.007a.729.729 0 0 0-.529.247c-.182.198-.691.677-.691 1.654 0 .977.71 1.916.81 2.049.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232z"/>
+                        </svg>
+                    </a>
+                    <!-- Email Icon via SVG -->
+                    <a href="mailto:sudeepsahoo9078@gmail.com" title="Send an Email">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#f3f4f6" viewBox="0 0 16 16">
+                            <path d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414.05 3.555ZM0 4.697v7.104l5.803-3.558L0 4.697ZM6.761 8.83l-6.57 4.027A2 2 0 0 0 2 14h12a2 2 0 0 0 1.808-1.144l-6.57-4.027L8 9.586l-1.239-.757Zm3.436-.586L16 11.801V4.697l-5.803 3.546Z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>&copy; 2026 sᴜᴅᴇᴇᴘ. All rights reserved.</p>
+            <p>Built with Three.js & HTML5</p>
+        </footer>
+    </div>
+
+    <!-- 3D Render Script Engine -->
+    <script>
+        const container = document.getElementById('canvas-container');
+        let scene, camera, renderer, particleSphere;
+        let mouseX = 0, mouseY = 0;
+        let targetX = 0, targetY = 0;
+        const windowHalfX = window.innerWidth / 2;
+        const windowHalfY = window.innerHeight / 2;
+
+        function init() {
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 4.5;
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            container.appendChild(renderer.domElement);
+
+            const particleCount = 1800;
+            const geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(particleCount * 3);
+
+            for (let i = 0; i < particleCount * 3; i += 3) {
+                const u = Math.random();
+                const v = Math.random();
+                const theta = u * 2.0 * Math.PI;
+                const phi = Math.acos(2.0 * v - 1.0);
+                const r = 1.6 + (Math.random() * 0.25);
+                positions[i] = r * Math.sin(phi) * Math.cos(theta);
+                positions[i+1] = r * Math.sin(phi) * Math.sin(theta);
+                positions[i+2] = r * Math.cos(phi);
+            }
+
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            const material = new THREE.PointsMaterial({
+                color: 0x6366f1,
+                size: 0.015,
+                transparent: true,
+                opacity: 0.85,
+                blending: THREE.AdditiveBlending
+            });
+
+            particleSphere = new THREE.Points(geometry, material);
+            scene.add(particleSphere);
+            window.addEventListener('resize', onWindowResize);
+            document.addEventListener('mousemove', onMouseMove);
+        }
+
+        function onMouseMove(event) {
+            mouseX = (event.clientX - windowHalfX) * 0.0007;
+            mouseY = (event.clientY - windowHalfY) * 0.0007;
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            particleSphere.rotation.y += 0.0012;
+            particleSphere.rotation.x += 0.0005;
+            targetX += (mouseX - targetX) * 0.05;
+            targetY += (mouseY - targetY) * 0.05;
+            particleSphere.position.x = targetX * 1.5;
+            particleSphere.position.y = -targetY * 1.5;
+            renderer.render(scene, camera);
+        }
+        init();
+        animate();
+    </script>
+</body>
+</html>
